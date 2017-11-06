@@ -15,7 +15,7 @@ router.get('/', function(req, res, next) {
 	var selectQuery = "select * from voteUsers;";
 	connection.query(selectQuery, (error, results, field)=>{
 		res.render("index", {result:results});
-	})
+	});
 });
 
 module.exports = router;
