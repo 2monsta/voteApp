@@ -4,11 +4,18 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
 var index = require('./routes/index');
 var users = require('./routes/users');
-
+var config = require("./config/config"); //we need the secret for session
+var session = require("express-session");
 var app = express();
+// basic setup for sessions
+app.use(session({
+	secret: config.sessionSalt,
+	resave: false,
+	saveUninitialized: true
+}));
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
