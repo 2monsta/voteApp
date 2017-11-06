@@ -19,7 +19,9 @@ router.get('/', function(req, res, next) {
 	if(req.session.name != undefined){
 		console.log(`welcome, ${req.session.name}`)
 	}
-	res.render("index");
+	res.render("index",{
+		name: req.session.name
+	});
 });
 // ==================REGISTER==================
 router.get("/register", (req,res,next)=>{
@@ -45,9 +47,9 @@ router.post("/registerProcess", (req, res, next)=>{
 				}else{
 					res.redirect("/?msg=registered");
 				}
-			})
+			});
 		}
-	})
+	});
 });
 
 
@@ -84,7 +86,7 @@ router.post("/loginProcess", (req, res, next)=>{
 				}
 			}
 		}
-	})
+	});
 });
 
 module.exports = router;
