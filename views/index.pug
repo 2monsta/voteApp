@@ -5,5 +5,10 @@ block content
 	//- 	li #{result[i].name}
 	-if(name)
 		h1 Welcome #{name}
-	h1 #{band.title}
-	img(src=`${band.imageUrl}`, alt="")
+	.band-image.col-sm-6.col-sm-offset-3.text-center
+		h1 #{band.title}
+		img(src=`${band.imageUrl}`, alt="")
+		a(href=`/vote/up/${band.id}`)
+			button.btn.btn-success(type="submit") Rocks
+		a(href=`/vote/down/${band.id}`)
+			button.btn.btn-danger(type="submit") Sucks

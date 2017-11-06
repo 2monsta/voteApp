@@ -16,8 +16,9 @@ router.get('/', function(req, res, next) {
 	// connection.query(selectQuery, (error, results, field)=>{
 	// 	res.render("index", {result:results});
 	// });
-	if(req.session.name != undefined){
-		console.log(`welcome, ${req.session.name}`)
+	if(req.session.name == undefined){
+		res.redirect("/login?msg=loginfirst");
+		return;
 	}
 	const getBands = new Promise((resolve, reject)=>{
 		var selectQuery = "select * from bands;";
@@ -103,6 +104,28 @@ router.post("/loginProcess", (req, res, next)=>{
 			}
 		}
 	});
+});
+
+
+
+router.get("/vote/:direction/:bandId", (req,res,send)=>{
+	// res.json(req.params);
+	var bandId = req.params.bandId;
+	var direction = req.params.direction;
+	var insertTo = new Promise((resolve, reject)=>{
+		var insertVoteQuery="insert into votes(imageID, voteDirection, userID) values(?, ?, ?, ?);";
+		connection.query(insertVoteQuery, [bandid, direction, req.session.id], (error, results, field)=>{
+			if(error){
+				reject(error);
+			}else{
+				resolve(results);
+			}
+		})
+	});
+	// NEED A DOT THEN
+	insertTo.then((e)=>{
+		res.redirect("/")
+	})
 });
 
 module.exports = router;
