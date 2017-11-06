@@ -19,9 +19,25 @@ router.get('/', function(req, res, next) {
 	if(req.session.name != undefined){
 		console.log(`welcome, ${req.session.name}`)
 	}
-	res.render("index",{
-		name: req.session.name
+	const getBands = new Promise((resolve, reject)=>{
+		var selectQuery = "select * from bands;";
+		connection.query(selectQuery, (error, results, field)=>{
+			if(error){
+				reject(error);
+			}else{
+				var rand = Math.floor(Math.random() * results.length);
+				resolve(results[rand]);
+			}
+		});
 	});
+	getBands.then((bandObj)=>{
+		res.render("index",{
+			name: req.session.name,
+			band: bandObj
+		});
+	}).catch((error)=>{
+		res.json(error);
+	})
 });
 // ==================REGISTER==================
 router.get("/register", (req,res,next)=>{
