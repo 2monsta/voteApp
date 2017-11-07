@@ -12,56 +12,48 @@ connection.connect((error)=>{
 });
 //================== HOME PAGE==================
 router.get('/', function(req, res, next) {
-	// var selectQuery = "select * from voteUsers;";
-	// connection.query(selectQuery, (error, results, field)=>{
-	// 	res.render("index", {result:results});
-	// });
 	if(req.session.name == undefined){
 		res.redirect("/login?msg=loginfirst");
 		return;
 	}
-	// const getNBA = new Promise((resolve, reject)=>{
-	// 	var selectQuery = "select * from nba;";
-	// 	connection.query(selectQuery, (error, results, field)=>{
-	// 		if(error){
-	// 			reject(error);
-	// 		}else{
-	// 			var rand = Math.floor(Math.random() * results.length);
-	// 			resolve(results[rand]);
-	// 		}
-	// 	});
-	// });
-
 	function getNBA(){
 		return new Promise((resolve, reject)=>{
-			var selectQuery = "select * from nba;";
-			connection.query(selectQuery, (error, results, field)=>{
+			// var selectQuery = "select * from nba;";
+			var selectSpecificNBA = `
+				Select * from nba where id not in(
+					select image_id from votes where user_id = ?
+				);
+			`;
+			connection.query(selectSpecificNBA, [req.session.uid], (error, results, field)=>{
 				if(error){
 					reject(error);
 				}else{
-					var rand = Math.floor(Math.random() * results.length);
-					resolve(results[rand]);
+					if(results.length ==0){
+						resolve("done");
+					}else{
+						var rand = Math.floor(Math.random() * results.length);
+						resolve(results[rand]);
+					}
 				}
 			});
 		});
 	}
-
-	function getPlayer(){
-		return new Promise((resolve, reject)=>{
-			resolve(console.log("hello world"));
-		})
-	}
-
 	// a function that returns a promise is easier to chain 
 	getNBA().then((teams)=>{
-		res.render("index",{
-			name: req.session.name,
-			team: teams
-		});
+		if(teams == "done"){
+			res.redirect("/standings?msg=finished");
+		}else{
+			res.render("index",{
+				name: req.session.name,
+				team: teams
+			});
+		}
 	}).catch((error)=>{
 		res.json(error);
 	});
 });
+
+
 // ==================REGISTER==================
 router.get("/register", (req,res,next)=>{
 	res.render("register");
@@ -128,8 +120,12 @@ router.post("/loginProcess", (req, res, next)=>{
 	});
 });
 
-
-
+// LOGOUT
+router.get("/logout", (req,res,next)=>{
+	req.session.destroy();
+	res.redirect("/login");
+});
+// Voting process
 router.get("/vote/:direction/:teamID", (req,res,send)=>{
 	// res.json(req.params);
 	var teamID = req.params.teamID;
@@ -151,5 +147,12 @@ router.get("/vote/:direction/:teamID", (req,res,send)=>{
 		res.json(e);
 	})
 });
+
+
+// STANDINGS
+
+router.get("/standings", (req, res, next)=>{
+	res.render("standings", {});
+})
 
 module.exports = router;
