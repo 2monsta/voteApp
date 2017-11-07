@@ -1,0 +1,9 @@
+extends layout
+
+block content
+
+	form(action="/uploadTeam", method="post" enctype="multipart/form-data")
+		.col-sm-4.col-sm-offset-2
+			input(type="text" name="TeamName" placeholder="Team Name")
+			input(type="file" name="imageToUpload")
+			input.btn.btn-primary(type="submit")

@@ -3,6 +3,8 @@ var router = express.Router();
 var mysql = require("mysql");
 var config = require("../config/config"); //sensative data
 var bcrypt = require("bcrypt-nodejs"); //hash user password
+var multer = require("multer");
+
 
 var connection = mysql.createConnection(config.db);
 connection.connect((error)=>{
@@ -166,7 +168,20 @@ router.get("/standings", (req, res, next)=>{
 			if(error){
 				reject(error);
 			}else{
+				console.log(results);
 				resolve(results);
+				results.map((teams,i)=>{
+					if(teams.upVotes /(teams.upVotes + teams.downVotes)>.8){
+						results[i].cls = "top-rated best";
+						resolve(results);
+					}else if(teams.upVotes /(teams.upVotes + teams.downVotes)<=.5){
+						results[i].cls = "worst-rated sucks";
+						resolve(results);
+					}else{
+						results[i].cls = "middle";
+						resolve(results);
+					}
+				})
 			}
 		})
 	});
@@ -180,5 +195,9 @@ router.get("/standings", (req, res, next)=>{
 		console.log(error);
 	})
 })
+
+router.post('/uploadTeam', (req, res)=>{
+	res.render("upload");
+});
 
 module.exports = router;

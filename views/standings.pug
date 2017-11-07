@@ -4,9 +4,12 @@ block content
 	h1 welcome to the standings page
 	.container
 		.row
-			.col-sm-6
-				-for(let i=0; i<standingsResults.length; i++)
-					.col-sm-12
+			.col-sm-8.col-sm-offset-2.text-center
+				button#all-bands.btn.btn-wanring All Teams
+				button#top-rated.btn.btn-success Top Rated
+				button#worst-rated.btn.btn-danger Worst Rated
+				.col-sm-6.grid
+					.col-sm-12(class=`${cls}`)
 						h3 #{standingsResults[i].title}
 						.col-sm-6
 							img(src=`/images/${standingsResults[i].imageUrl}`, alt="")
@@ -16,3 +19,10 @@ block content
 						.col-sm-3.upvotes
 							img(src="/images/thumbsDown.png", alt="")
 							p #{standingsResults[i].downVotes}
+	//- script.
+	//- 	$(document).ready((e)=>{
+	//- 		var $grid = $('.grid').isotope({})
+	//- 		$("#top-rated").click(()=>{
+	//- 			$grid.isotope({filter: '.transition'})
+	//- 		});
+	//- 	})
