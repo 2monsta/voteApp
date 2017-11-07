@@ -3,7 +3,15 @@ var router = express.Router();
 var mysql = require("mysql");
 var config = require("../config/config"); //sensative data
 var bcrypt = require("bcrypt-nodejs"); //hash user password
+var fs = require("fs");
 var multer = require("multer");
+
+// part 2 of multer is to tell multer where to save the file it gets
+var uploadDIR = multer({
+	dest: "public/images"
+})
+// part 3specify the name of the file to input to accept
+var nameOfFileField = uploadDIR.single("imageToUpload");
 
 
 var connection = mysql.createConnection(config.db);
@@ -196,8 +204,57 @@ router.get("/standings", (req, res, next)=>{
 	})
 })
 
-router.post('/uploadTeam', (req, res)=>{
+router.get("/upload", (req, res, next)=>{
 	res.render("upload");
+})
+
+router.post('/uploadTeam', nameOfFileField, (req, res)=>{
+	var tmpPath = req.file.path;
+	var targetPath = `public/images/${req.file.originalname}`;
+	function readFile(){
+		return new Promise((resolve, reject)=>{
+			fs.readFile(tmpPath,(error, fileContents)=>{
+				if(error){
+					reject(error);
+				}else{
+					resolve(fileContents);
+				}
+			});
+		})
+	}
+	function writeFile(fileContents){
+		return new Promise((resolve, reject)=>{
+			fs.writeFile(targetPath,fileContents,(error)=>{
+				if (error){
+					reject(error);
+				}else{
+					resolve("success");
+				}
+			})
+		})
+	}
+	function insertInToDb(){
+		return new Promise((resolve, reject)=>{
+			var insertQuery = `
+			INSERT INTO nba (imageUrl, title) 
+				VALUES
+				(?,?);`
+			connection.query(insertQuery,[req.file.originalname,req.body.teamName],(dbError,results)=>{
+				if(dbError){
+					reject(dbError);
+				}else{
+					resolve("success");
+				}
+			});
+		})
+	}
+	readFile().then((fileContent)=>{
+		return writeFile(fileContent);
+	}).then((data)=>{
+		return insertInToDb();
+	}).then((data)=>{
+		res.redirect('/')
+	})
 });
 
 module.exports = router;
