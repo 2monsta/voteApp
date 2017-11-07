@@ -125,6 +125,8 @@ router.get("/logout", (req,res,next)=>{
 	req.session.destroy();
 	res.redirect("/login");
 });
+
+
 // Voting process
 router.get("/vote/:direction/:teamID", (req,res,send)=>{
 	// res.json(req.params);
@@ -138,9 +140,8 @@ router.get("/vote/:direction/:teamID", (req,res,send)=>{
 			}else{
 				resolve(results);
 			}
-		})
+		});
 	});
-	// NEED A DOT THEN
 	insertTo.then((e)=>{
 		res.redirect("/")
 	}).catch((e)=>{
@@ -152,7 +153,32 @@ router.get("/vote/:direction/:teamID", (req,res,send)=>{
 // STANDINGS
 
 router.get("/standings", (req, res, next)=>{
-	res.render("standings", {});
+	var standings = new Promise((resolve, reject)=>{
+		const standingsQuery = `select votes.image_id,
+		sum(if(votes.vote_direction='up', 1, 0)) as upVotes, 
+		sum(if(votes.vote_direction='down', 1, 0)) as downVotes, 
+		sum(if(votes.vote_direction='up', 1, -1)) as total,
+		nba.title, nba.imageUrl from votes
+		inner join nba
+		on votes.image_id = nba.id
+		group by image_id;`;
+		connection.query(standingsQuery, (error, results)=>{
+			if(error){
+				reject(error);
+			}else{
+				resolve(results);
+			}
+		})
+	});
+
+	standings.then((result)=>{
+		console.log(result);
+		res.render("standings", {
+			standingsResults:result
+		});
+	}).catch((error)=>{
+		console.log(error);
+	})
 })
 
 module.exports = router;

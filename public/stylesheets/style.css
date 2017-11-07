@@ -10,3 +10,6 @@ a {
 .band-image{
 	width: 100%;
 }
+.upvotes, .downvotes{
+	margin-left: 70px;
+}
