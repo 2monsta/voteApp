@@ -20,25 +20,47 @@ router.get('/', function(req, res, next) {
 		res.redirect("/login?msg=loginfirst");
 		return;
 	}
-	const getBands = new Promise((resolve, reject)=>{
-		var selectQuery = "select * from bands;";
-		connection.query(selectQuery, (error, results, field)=>{
-			if(error){
-				reject(error);
-			}else{
-				var rand = Math.floor(Math.random() * results.length);
-				resolve(results[rand]);
-			}
+	// const getNBA = new Promise((resolve, reject)=>{
+	// 	var selectQuery = "select * from nba;";
+	// 	connection.query(selectQuery, (error, results, field)=>{
+	// 		if(error){
+	// 			reject(error);
+	// 		}else{
+	// 			var rand = Math.floor(Math.random() * results.length);
+	// 			resolve(results[rand]);
+	// 		}
+	// 	});
+	// });
+
+	function getNBA(){
+		return new Promise((resolve, reject)=>{
+			var selectQuery = "select * from nba;";
+			connection.query(selectQuery, (error, results, field)=>{
+				if(error){
+					reject(error);
+				}else{
+					var rand = Math.floor(Math.random() * results.length);
+					resolve(results[rand]);
+				}
+			});
 		});
-	});
-	getBands.then((bandObj)=>{
+	}
+
+	function getPlayer(){
+		return new Promise((resolve, reject)=>{
+			resolve(console.log("hello world"));
+		})
+	}
+
+	// a function that returns a promise is easier to chain 
+	getNBA().then((teams)=>{
 		res.render("index",{
 			name: req.session.name,
-			band: bandObj
+			team: teams
 		});
 	}).catch((error)=>{
 		res.json(error);
-	})
+	});
 });
 // ==================REGISTER==================
 router.get("/register", (req,res,next)=>{
@@ -94,7 +116,7 @@ router.post("/loginProcess", (req, res, next)=>{
 				if(passwordMatch){
 					// user in db, log them in
 					req.session.name = results[0].name;
-					req.session.id = results[0].id;
+					req.session.uid = results[0].id;
 					req.session.id = results[0].email;
 					res.redirect("/");
 				}else{
@@ -108,13 +130,13 @@ router.post("/loginProcess", (req, res, next)=>{
 
 
 
-router.get("/vote/:direction/:bandId", (req,res,send)=>{
+router.get("/vote/:direction/:teamID", (req,res,send)=>{
 	// res.json(req.params);
-	var bandId = req.params.bandId;
+	var teamID = req.params.teamID;
 	var direction = req.params.direction;
 	var insertTo = new Promise((resolve, reject)=>{
-		var insertVoteQuery="insert into votes(imageID, voteDirection, userID) values(?, ?, ?, ?);";
-		connection.query(insertVoteQuery, [bandid, direction, req.session.id], (error, results, field)=>{
+		var insertVoteQuery="insert into votes(image_id, vote_direction, user_id) values(?, ?, ?);";
+		connection.query(insertVoteQuery, [teamID, direction, req.session.uid], (error, results, field)=>{
 			if(error){
 				reject(error);
 			}else{
@@ -125,6 +147,8 @@ router.get("/vote/:direction/:bandId", (req,res,send)=>{
 	// NEED A DOT THEN
 	insertTo.then((e)=>{
 		res.redirect("/")
+	}).catch((e)=>{
+		res.json(e);
 	})
 });
 

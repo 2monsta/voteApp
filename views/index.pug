@@ -6,9 +6,9 @@ block content
 	-if(name)
 		h1 Welcome #{name}
 	.band-image.col-sm-6.col-sm-offset-3.text-center
-		h1 #{band.title}
-		img(src=`${band.imageUrl}`, alt="")
-		a(href=`/vote/up/${band.id}`)
+		h1 #{team.title}
+		img(src=`/images/${team.imageUrl}`, alt="")
+		a(href=`/vote/up/${team.id}`)
 			button.btn.btn-success(type="submit") Rocks
-		a(href=`/vote/down/${band.id}`)
+		a(href=`/vote/down/${team.id}`)
 			button.btn.btn-danger(type="submit") Sucks
