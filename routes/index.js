@@ -119,7 +119,7 @@ router.post("/loginProcess", (req, res, next)=>{
 					// user in db, log them in
 					req.session.name = results[0].name;
 					req.session.uid = results[0].id;
-					req.session.id = results[0].email;
+					req.session.email = results[0].email;
 					res.redirect("/");
 				}else{
 					// user in db password is bad

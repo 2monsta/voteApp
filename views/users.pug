@@ -1,0 +1,18 @@
+extends layout
+
+block content
+	.container
+		.row
+			.col-sm-12
+				h1 My Profile
+				form(action="/users/userProcess", method="post")
+					.form-group
+						label(for="name") Name:
+						input#email.form-control(type="text" name="name" value=`${name}`)
+						label(for="email") Email Address:
+						input#email.form-control(type="email", name="email" value=`${email}`)
+						label(for="password") Password (leave it blank to keep it unchaged):
+						input#password.form-control(type="password" name="password")
+						input#checkbox(type="checkbox" checked)
+						label(for="checkbox") Sign me Up
+						button.btn.btn-block.btn-success(type="submit") Submit
