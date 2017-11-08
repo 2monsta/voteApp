@@ -9,16 +9,17 @@ block content
 				button#top-rated.btn.btn-success Top Rated
 				button#worst-rated.btn.btn-danger Worst Rated
 				.col-sm-6.grid
-					.col-sm-12(class=`${cls}`)
-						h3 #{standingsResults[i].title}
-						.col-sm-6
-							img(src=`/images/${standingsResults[i].imageUrl}`, alt="")
-						.col-sm-3.downvotes
-							img(src="/images/thumbsUp.png", alt="")
-							p #{standingsResults[i].upVotes}
-						.col-sm-3.upvotes
-							img(src="/images/thumbsDown.png", alt="")
-							p #{standingsResults[i].downVotes}
+					-for(let i=0; i <standingsResults.length; i++)
+						.col-sm-12(class=`${standingsResults[i].cls}`)
+							h3 #{standingsResults[i].title}
+							.col-sm-6
+								img(src=`/images/${standingsResults[i].imageUrl}`, alt="")
+							.col-sm-3.downvotes
+								img(src="/images/thumbsUp.png", alt="")
+								p #{standingsResults[i].upVotes}
+							.col-sm-3.upvotes
+								img(src="/images/thumbsDown.png", alt="")
+								p #{standingsResults[i].downVotes}
 	//- script.
 	//- 	$(document).ready((e)=>{
 	//- 		var $grid = $('.grid').isotope({})

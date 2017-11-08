@@ -130,14 +130,14 @@ router.post("/loginProcess", (req, res, next)=>{
 	});
 });
 
-// LOGOUT
+// ==============================LOGOUT==============================
 router.get("/logout", (req,res,next)=>{
 	req.session.destroy();
 	res.redirect("/login");
 });
 
 
-// Voting process
+//============================== Voting process==============================
 router.get("/vote/:direction/:teamID", (req,res,send)=>{
 	// res.json(req.params);
 	var teamID = req.params.teamID;
@@ -160,7 +160,7 @@ router.get("/vote/:direction/:teamID", (req,res,send)=>{
 });
 
 
-// STANDINGS
+//============================== STANDINGS==============================
 
 router.get("/standings", (req, res, next)=>{
 	var standings = new Promise((resolve, reject)=>{
@@ -180,10 +180,10 @@ router.get("/standings", (req, res, next)=>{
 				resolve(results);
 				results.map((teams,i)=>{
 					if(teams.upVotes /(teams.upVotes + teams.downVotes)>.8){
-						results[i].cls = "top-rated best";
+						results[i].cls = "top-rated";
 						resolve(results);
 					}else if(teams.upVotes /(teams.upVotes + teams.downVotes)<=.5){
-						results[i].cls = "worst-rated sucks";
+						results[i].cls = "worst-rated";
 						resolve(results);
 					}else{
 						results[i].cls = "middle";
@@ -193,7 +193,6 @@ router.get("/standings", (req, res, next)=>{
 			}
 		})
 	});
-
 	standings.then((result)=>{
 		console.log(result);
 		res.render("standings", {
@@ -204,11 +203,18 @@ router.get("/standings", (req, res, next)=>{
 	})
 })
 
+
+//====================UPLOAD FILE PAGE==============================
 router.get("/upload", (req, res, next)=>{
-	res.render("upload");
+	var msg = req.query.msg;
+	res.render("upload", {msg:msg});
 })
 
 router.post('/uploadTeam', nameOfFileField, (req, res)=>{
+	if(req.file == undefined){
+		return res.redirect('/upload?msg=nofileattached');
+	}
+	// req.file came from multer
 	var tmpPath = req.file.path;
 	var targetPath = `public/images/${req.file.originalname}`;
 	function readFile(){
@@ -235,10 +241,7 @@ router.post('/uploadTeam', nameOfFileField, (req, res)=>{
 	}
 	function insertInToDb(){
 		return new Promise((resolve, reject)=>{
-			var insertQuery = `
-			INSERT INTO nba (imageUrl, title) 
-				VALUES
-				(?,?);`
+			var insertQuery = `INSERT INTO nba (imageUrl, title) VALUES (?,?);`
 			connection.query(insertQuery,[req.file.originalname,req.body.teamName],(dbError,results)=>{
 				if(dbError){
 					reject(dbError);
@@ -253,7 +256,9 @@ router.post('/uploadTeam', nameOfFileField, (req, res)=>{
 	}).then((data)=>{
 		return insertInToDb();
 	}).then((data)=>{
-		res.redirect('/')
+		return res.redirect('/')
+	}).catch((error)=>{
+		return console.log(error);
 	})
 });
 
